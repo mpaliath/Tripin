@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { AdventureCard } from "../types";
 import CenteredLayout from "./CenteredLayout";
 import PickAdventureCards from "./PickAdventureCards";
@@ -21,8 +22,8 @@ export default function PickAdventure({
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const { latitude, longitude } = pos.coords;
-          fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
-            .then((r) => r.json())
+          axios.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
+            .then((res) => res.data)
             .then((data) => {
               setAddress({
                 lat: latitude,
@@ -50,8 +51,8 @@ export default function PickAdventure({
     } else {
       url = `/api/adventures?lat=&lng=&hours=${duration}${cityParam}`;
     }
-    fetch(url)
-      .then((r) => r && r.body ? r.json() : Promise.reject("No response body"))
+    axios.get(url)
+      .then((res) => res.data)
       .then(setCards)
       .finally(() => {
         setShowCards(true);

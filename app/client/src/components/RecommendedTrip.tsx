@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { AdventureCard, TripPlan } from "../types";
 import CenteredLayout from "./CenteredLayout";
 
@@ -18,12 +19,8 @@ export default function RecommendedTrip({
 
   useEffect(() => {
     setLoading(true);
-    fetch("/api/recommendation", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ themeId: card.id })
-    })
-      .then((r) => r.json())
+    axios.post("/api/recommendation", { themeId: card.id })
+      .then((res) => res.data)
       .then((p) => {
         setPlan(p);
         setLoading(false);
@@ -50,12 +47,8 @@ export default function RecommendedTrip({
           <button id="recommended-trip-refresh-btn"
             className="bg-gray-200 rounded-xl py-2 text-sm"
             onClick={() =>
-              fetch("/api/refresh", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ themeId: card.id })
-              })
-                .then((r) => r.json())
+              axios.post("/api/refresh", { themeId: card.id })
+                .then((res) => res.data)
                 .then(onRefresh)
             }
           >
