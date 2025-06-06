@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const  UNSPLASH_KEY_REMOVED= process.env.UNSPLASH_ACCESS_KEY;
+const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
 
 export const fetchImage = async (queryString: string) => {
       try {
