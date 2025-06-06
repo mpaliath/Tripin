@@ -1,7 +1,10 @@
-require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+const fs   = require('fs');
+const path = require('path');
+const envPath = path.join(__dirname, '.env');   // will exist only in local builds
+
+require('dotenv').config();   
 
 const express = require("express");
-const path = require("path");
 const app = express();
 app.use(express.json());
 
