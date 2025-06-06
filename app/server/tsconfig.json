@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "../dist/server",
+    "outDir": "./dist",
     "module": "CommonJS",
     "moduleResolution": "Node",
     "target": "ES2020",

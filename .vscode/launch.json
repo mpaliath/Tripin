@@ -6,7 +6,7 @@
       "request": "launch",
       "name": "Start Express Server (dist)",
       "cwd": "${workspaceFolder}/app",
-      "program": "${workspaceFolder}/app/dist/server/index.js",
+      "program": "${workspaceFolder}/app/server/dist/index.js",
       "console": "integratedTerminal",
       "preLaunchTask": "build-server"
     },
@@ -21,7 +21,7 @@
       "presentation": { "hidden": true }
     },
     {
-      "type": "pwa-chrome",
+      "type": "chrome",
       "request": "launch",
       "name": "Debug Vite Client (Chrome)",
       "url": "http://localhost:5173",
