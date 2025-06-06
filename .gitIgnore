@@ -1,4 +1,0 @@
-app/**/dist/
-**/node_modules/
-app/.env
-.gitFilter.txt

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-ENV_FILE="app/.env"
+ENV_FILE=".env"
 
 if [ -f "$ENV_FILE" ]; then
   echo "$ENV_FILE already exists"
