@@ -6,7 +6,7 @@ import { getOpenAiAdventures } from "./openAiApi";
 import { getSerpResults } from "./serpApi";
 
 const router = Router();
-const MAX_RESULTS = 5;
+const MAX_RESULTS = 3;
 
 const cosmosEndpoint = process.env.COSMOS_ENDPOINT!;
 const cosmosKey = process.env.COSMOS_KEY!;
