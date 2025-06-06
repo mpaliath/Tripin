@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import PickAdventure from "./components/PickAdventure";
 import EditPlanRoute from "./routes/EditPlanRoute";
+import LandingRoute from "./routes/LandingRoute";
 import PlanRoute from "./routes/PlanRoute";
 import RecommendRoute from "./routes/RecommendRoute";
 import Redirect from "./routes/Redirect";
@@ -21,6 +22,7 @@ function AppRoutes() {
         <Route path="/recommend" element={<RecommendRoute />} />
         <Route path="/plan/:adventureId" element={<PlanRoute />} />
         <Route path="/plan/:adventureId/edit" element={<EditPlanRoute />} />
+        <Route path="/landing" element={<LandingRoute />} />
         <Route path="*" element={<Redirect to="/" />} />
       </Routes>
     </main>

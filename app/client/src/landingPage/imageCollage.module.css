@@ -1,0 +1,69 @@
+.collage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  overflow: hidden;
+  background-color: black;
+}
+
+.movingGrid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 300%;
+  height: 300%;
+  display: grid;
+  grid-template-columns: repeat(
+    18,
+    minmax(calc(300% / 27), 1fr)
+  ); /* 18 columns, each at least 1/27 of the total width */
+  grid-auto-rows: minmax(
+    calc(300% / 27),
+    auto
+  ); /* Rows at least 1/27 of the total height */
+  gap: 8px;
+  animation: moveGrid 240s linear infinite;
+}
+
+.cell {
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out;
+}
+
+.imageCell {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+@keyframes moveGrid {
+  0%,
+  100% {
+    transform: translate(-33.33%, -33.33%); /* Center */
+  }
+  12.5% {
+    transform: translate(-16.67%, -50%); /* Top */
+  }
+  25% {
+    transform: translate(0%, -33.33%); /* Right */
+  }
+  37.5% {
+    transform: translate(-16.67%, -16.67%); /* Bottom */
+  }
+  50% {
+    transform: translate(-33.33%, 0%); /* Left */
+  }
+  62.5% {
+    transform: translate(-50%, -16.67%); /* Top-left */
+  }
+  75% {
+    transform: translate(-66.67%, -33.33%); /* Top-right */
+  }
+  87.5% {
+    transform: translate(-50%, -50%); /* Bottom-right */
+  }
+}
