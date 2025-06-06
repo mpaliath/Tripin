@@ -1,65 +1,9 @@
-import { useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
-import EditTripPlan from "./components/EditTripPlan";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import PickAdventure from "./components/PickAdventure";
-import RecommendedTrip from "./components/RecommendedTrip";
-import TripPlan from "./components/TripPlan";
-import { AdventureCard, TripPlan as TripPlanType } from "./types";
-
-function Redirect({ to }: { to: string }) {
-  const navigate = useNavigate();
-  useEffect(() => {
-    navigate(to, { replace: true });
-  }, [to, navigate]);
-  return null;
-}
-
-function RecommendRoute() {
-  const { adventureId } = useParams();
-  const location = useLocation();
-  const cardFromState = location.state?.card as AdventureCard | undefined;
-  const navigate = useNavigate();
-  const [adventure, setAdventure] = useState<AdventureCard | null>(cardFromState || null);
-
-  useEffect(() => {
-    if(!cardFromState) return;
-    setAdventure(cardFromState);
-  }, [adventureId, adventure]);
-
-  if (!cardFromState) return <Redirect to="/" />;
-  if (!adventure) return <p>Loading…</p>;
-
-  return (
-    <RecommendedTrip
-      card={adventure}
-      onRefresh={(newCard) => navigate(`/recommend/${newCard.id}`, { state: { card: newCard } })}
-      onChoose={(trip) => navigate(`/plan/${adventure.id}`, { state: { plan: trip } })}
-      onFineTune={(trip) => navigate(`/plan/${adventure.id}/edit`, { state: { plan: trip } })}
-    />
-  );
-}
-
-function PlanRoute() {
-  const { adventureId } = useParams();
-  const location = useLocation();
-  const plan = location.state?.plan as TripPlanType | undefined;
-  if (!adventureId || !plan) return <Redirect to="/" />;
-  return <TripPlan plan={plan} />;
-}
-
-function EditPlanRoute() {
-  const { adventureId } = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const plan = location.state?.plan as TripPlanType | undefined;
-  if (!adventureId || !plan) return <Redirect to="/" />;
-  return (
-    <EditTripPlan
-      plan={plan}
-      onSave={(updatedPlan) => navigate(`/plan/${adventureId}`, { state: { plan: updatedPlan } })}
-    />
-  );
-}
+import EditPlanRoute from "./routes/EditPlanRoute";
+import PlanRoute from "./routes/PlanRoute";
+import RecommendRoute from "./routes/RecommendRoute";
+import Redirect from "./routes/Redirect";
 
 function AppRoutes() {
   const navigate = useNavigate();
