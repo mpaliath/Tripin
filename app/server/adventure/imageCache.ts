@@ -1,33 +1,25 @@
-import { Container } from "@azure/cosmos";
 import crypto from "crypto";
+import { storeItem, tryGetItem } from "./cosmosCache";
 import { fetchImages } from "./google";
 
-export async function getCachedImageLink(imageId: string, container: Container): Promise<string | null> {
-  try {
-    const { resource } = await container.item(imageId, "image").read();
-    return resource?.link ?? null;
-  } catch {
-    return null;
-  }
+export type ImageDetails = { link: string };
+
+export async function getCachedImageLink(imageId: string): Promise<string | null> {
+  const cached = await tryGetItem<ImageDetails>(imageId, "image");
+  return cached?.link ?? null;
 }
 
-export async function cacheImageLink(imageId: string, link: string, queryString: string, container: Container) {
-  await container.items.upsert({
-    id: imageId,
-    type: "image",
-    query: queryString,
-    link,
-    createdAt: new Date().toISOString()
-  });
+export async function cacheImageLink(imageId: string, link: string, queryString: string) {
+  await storeItem(imageId, "image", { link }, { query: queryString });
 }
 
-export async function replaceHeroImagesTextWithUrl(adventures: any[], container: Container) {
+export async function replaceHeroImagesTextWithUrl(adventures: any[]) {
   for (const adv of adventures) {
     if (adv.heroImage) {
       const imageQuery = adv.heroImage;
       const imageId = crypto.createHash("sha256").update(adv.heroImage).digest("hex");
       try {
-        let cachedLink = await getCachedImageLink(imageId, container);
+        let cachedLink = await getCachedImageLink(imageId);
         if (cachedLink) {
           adv.heroImage = cachedLink;
           continue;
@@ -35,7 +27,7 @@ export async function replaceHeroImagesTextWithUrl(adventures: any[], container:
         const images = await fetchImages(adv.heroImage);
         if (images && images[0]) {
           adv.heroImage = images[0].link;
-          await cacheImageLink(imageId, images[0].link, imageQuery, container);
+          await cacheImageLink(imageId, images[0].link, imageQuery);
         }
       } catch (e) {
         if (

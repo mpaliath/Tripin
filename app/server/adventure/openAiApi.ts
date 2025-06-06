@@ -1,7 +1,7 @@
-import { Container } from "@azure/cosmos";
 import crypto from "crypto";
 import OpenAI from "openai";
 import { Adventure } from "./adventureTypes";
+import { storeItem, tryGetItem } from "./cosmosCache";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -33,22 +33,23 @@ async function getOpenAiResponse({ model, messages, temperature, max_completion_
   return typeof content === 'string' ? JSON.parse(content) : content;
 }
 
-export async function getOpenAiAdventures({ serpId, hrs, maxResults, snippets, container }: {
+// Strong type for OpenAI cache
+export type OpenAiAdventure = Adventure[] | { adventures: Adventure[] };
+
+export async function getOpenAiAdventures({ serpId, hrs, maxResults, snippets }: {
   serpId: string,
   hrs: number,
   maxResults: number,
-  snippets: any[],
-  container: Container
+  snippets: any[]
 }): Promise<Adventure[]> {
   const openAiCacheId = makeSafeId(`${serpId}:${hrs}:${maxResults}`);
-  try {
-    const { resource } = await container.item(openAiCacheId, 'openAi').read();
-    if (resource && resource.data) {
-      const data = typeof resource.data === 'string' ? JSON.parse(resource.data) : resource.data;
-      // Always return Adventure[]
-      return Array.isArray(data) ? data : data.adventures;
+  const cached = await tryGetItem<OpenAiAdventure>(openAiCacheId, "openAi");
+  if (cached) {
+    if (Array.isArray(cached)) return cached;
+    if (typeof cached === 'object' && cached !== null && 'adventures' in cached && Array.isArray((cached as any).adventures)) {
+      return (cached as any).adventures;
     }
-  } catch {}
+  }
 
   // Compose system prompt here
   const sysPrompt = `
@@ -88,14 +89,6 @@ Rules:
   if (!parsedContent?.adventures && !Array.isArray(parsedContent)) throw new Error("No content returned from OpenAI");
   const adventures: Adventure[] = Array.isArray(parsedContent) ? parsedContent : parsedContent.adventures;
   // Cache response
-  try {
-    await container.items.create({
-      id: openAiCacheId,
-      type: 'openAi',
-      params: { serpId, hrs, maxResults },
-      data: JSON.stringify(adventures),
-      createdAt: new Date().toISOString()
-    });
-  } catch {}
+  await storeItem(openAiCacheId, "openAi", adventures, { serpId, hrs, maxResults });
   return adventures;
 }
