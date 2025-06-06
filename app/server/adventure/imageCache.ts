@@ -1,27 +1,21 @@
 import { Container } from "@azure/cosmos";
+import crypto from "crypto";
 import { fetchImages } from "./google";
 
-export async function getCachedImageLink(query: string, container: Container): Promise<string | null> {
-  const { resources } = await container.items
-    .query({
-      query: "SELECT TOP 1 c.link FROM c WHERE c.type = @type AND c.query = @query",
-      parameters: [
-        { name: "@type", value: "image" },
-        { name: "@query", value: query }
-      ]
-    })
-    .fetchAll();
-  if (resources && resources.length > 0) {
-    return resources[0].link;
+export async function getCachedImageLink(imageId: string, container: Container): Promise<string | null> {
+  try {
+    const { resource } = await container.item(imageId, "image").read();
+    return resource?.link ?? null;
+  } catch {
+    return null;
   }
-  return null;
 }
 
-export async function cacheImageLink(query: string, link: string, container: Container) {
-  await container.items.create({
-    id: `${query}-${Date.now()}`,
+export async function cacheImageLink(imageId: string, link: string, queryString: string, container: Container) {
+  await container.items.upsert({
+    id: imageId,
     type: "image",
-    query,
+    query: queryString,
     link,
     createdAt: new Date().toISOString()
   });
@@ -30,8 +24,10 @@ export async function cacheImageLink(query: string, link: string, container: Con
 export async function replaceHeroImagesTextWithUrl(adventures: any[], container: Container) {
   for (const adv of adventures) {
     if (adv.heroImage) {
+      const imageQuery = adv.heroImage;
+      const imageId = crypto.createHash("sha256").update(adv.heroImage).digest("hex");
       try {
-        let cachedLink = await getCachedImageLink(adv.heroImage, container);
+        let cachedLink = await getCachedImageLink(imageId, container);
         if (cachedLink) {
           adv.heroImage = cachedLink;
           continue;
@@ -39,7 +35,7 @@ export async function replaceHeroImagesTextWithUrl(adventures: any[], container:
         const images = await fetchImages(adv.heroImage);
         if (images && images[0]) {
           adv.heroImage = images[0].link;
-          await cacheImageLink(adv.heroImage, images[0].link, container);
+          await cacheImageLink(imageId, images[0].link, imageQuery, container);
         }
       } catch (e) {
         if (
