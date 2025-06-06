@@ -1,0 +1,43 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Start Express Server (dist)",
+      "cwd": "${workspaceFolder}/app",
+      "program": "${workspaceFolder}/app/dist/server/index.js",
+      "console": "integratedTerminal",
+      "preLaunchTask": "build-server"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Start Vite Dev Server",
+      "cwd": "${workspaceFolder}/app/client",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "console": "integratedTerminal",
+      "presentation": { "hidden": true }
+    },
+    {
+      "type": "pwa-chrome",
+      "request": "launch",
+      "name": "Debug Vite Client (Chrome)",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/app/client/src",
+      "userDataDir": true,
+      "presentation": { "hidden": true }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Dev: Full Stack (Server + Vite + Chrome)",
+      "configurations": [
+        "Start Express Server (dist)",
+        "Start Vite Dev Server",
+        "Debug Vite Client (Chrome)"
+      ]
+    }
+  ]
+}

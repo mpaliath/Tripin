@@ -1,0 +1,378 @@
+// Vacation PWA MVP – TypeScript + React + Express stubs
+// ───────────────────────────────────────────────────
+// One‑file monorepo sketch: copy pieces into actual files when scaffolding.
+// Frontend built with Vite + React + Tailwind; backend uses Node + Express (TS).
+
+/*────────────────────── package.json ──────────────────────*/
+{
+  "name": "vacation‑daytrip‑mvp",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc -p server/tsconfig.json",
+    "preview": "vite preview",
+    "server": "node dist/server/index.js",
+    "start": "concurrently -k \"npm:dev\" \"npm:server\""
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
+    "concurrently": "^8.2.2",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.5.0",
+    "vite": "^5.0.4"
+  }
+}
+
+/*────────────────────── vite.config.ts ─────────────────────*/
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+export default defineConfig({
+  plugins: [react()],
+  server: { port: 5173 },
+  build: { outDir: "dist/client" }
+});
+
+/*────────────────────── tailwind.config.js ─────────────────*/
+module.exports = {
+  content: ["./src/**/*.{ts,tsx}"],
+  theme: { extend: {} },
+  plugins: []
+};
+
+/*────────────────────── src/types.ts ───────────────────────*/
+export interface AdventureCard {
+  id: string;
+  title: string;
+  subtitle: string;
+  image: string;
+}
+
+export interface TripPlan {
+  theme: string;
+  legs: { time: string; label: string; notes?: string }[];
+  packing: string[];
+}
+
+/*────────────────────── src/main.tsx ──────────────────────*/
+import React from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App";
+createRoot(document.getElementById("root")!).render(<App />);
+
+/*────────────────────── src/App.tsx ───────────────────────*/
+import React, { useState } from "react";
+import PickAdventure from "./components/PickAdventure";
+import RecommendedTrip from "./components/RecommendedTrip";
+import TripPlan from "./components/TripPlan";
+import { AdventureCard, TripPlan as TripPlanType } from "./types";
+
+export default function App() {
+  const [stage, setStage] = useState<"pick" | "recommend" | "plan">("pick");
+  const [selection, setSelection] = useState<AdventureCard | null>(null);
+  const [plan, setPlan] = useState<TripPlanType | null>(null);
+
+  return (
+    <main className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
+      {stage === "pick" && (
+        <PickAdventure
+          onPick={(card) => {
+            setSelection(card);
+            setStage("recommend");
+          }}
+        />
+      )}
+
+      {stage === "recommend" && selection && (
+        <RecommendedTrip
+          card={selection}
+          onRefresh={(newCard) => setSelection(newCard)}
+          onChoose={(trip) => {
+            setPlan(trip);
+            setStage("plan");
+          }}
+          onFineTune={(trip) => {
+            setPlan(trip);
+            setStage("plan");
+          }}
+        />
+      )}
+
+      {stage === "plan" && plan && <TripPlan plan={plan} />}
+    </main>
+  );
+}
+
+/*────────────────────── src/components/PickAdventure.tsx ─*/
+import React, { useEffect, useState } from "react";
+import { AdventureCard } from "../types";
+
+export default function PickAdventure({
+  onPick
+}: {
+  onPick: (card: AdventureCard) => void;
+}) {
+  const [cards, setCards] = useState<AdventureCard[]>([]);
+  useEffect(() => {
+    fetch("/api/adventures")
+      .then((r) => r.json())
+      .then(setCards);
+  }, []);
+
+  return (
+    <>
+      <h1 className="text-2xl font-bold mb-6">Pick Your Adventure</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md">
+        {cards.map((c) => (
+          <div
+            key={c.id}
+            className="bg-white rounded-2xl shadow overflow-hidden cursor-pointer"
+            onClick={() => onPick(c)}
+          >
+            <img src={c.image} alt={c.title} className="h-40 w-full object-cover" />
+            <div className="p-4">
+              <h2 className="font-semibold text-lg">{c.title}</h2>
+              <p className="text-gray-600 text-sm">{c.subtitle}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/*────────────────────── src/components/RecommendedTrip.tsx */
+import React, { useState, useEffect } from "react";
+import { AdventureCard, TripPlan } from "../types";
+
+export default function RecommendedTrip({
+  card,
+  onRefresh,
+  onChoose,
+  onFineTune
+}: {
+  card: AdventureCard;
+  onRefresh: (c: AdventureCard) => void;
+  onChoose: (trip: TripPlan) => void;
+  onFineTune: (trip: TripPlan) => void;
+}) {
+  const [plan, setPlan] = useState<TripPlan | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch("/api/recommendation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ themeId: card.id })
+    })
+      .then((r) => r.json())
+      .then((p) => {
+        setPlan(p);
+        setLoading(false);
+      });
+  }, [card]);
+
+  if (loading || !plan) return <p>Loading recommendation…</p>;
+
+  return (
+    <div className="w-full max-w-md">
+      <h1 className="text-xl font-bold mb-4">Your Recommended Day Trip</h1>
+      <div className="bg-white rounded-2xl shadow p-4 mb-4">
+        <h2 className="font-semibold mb-2">{card.title}</h2>
+        <ul className="space-y-1 text-sm text-gray-700 mb-2">
+          {plan.legs.map((l) => (
+            <li key={l.time}>
+              <span className="font-medium">{l.time}</span> – {l.label}
+            </li>
+          ))}
+        </ul>
+        <p className="text-xs text-gray-500">Includes packing list & map links</p>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        <button
+          className="bg-gray-200 rounded-xl py-2 text-sm"
+          onClick={() =>
+            fetch("/api/refresh", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ themeId: card.id })
+            })
+              .then((r) => r.json())
+              .then(onRefresh)
+          }
+        >
+          Refresh
+        </button>
+        <button
+          className="bg-blue-600 text-white rounded-xl py-2 text-sm"
+          onClick={() => onChoose(plan)}
+        >
+          Choose
+        </button>
+        <button
+          className="bg-yellow-400 rounded-xl py-2 text-sm"
+          onClick={() => onFineTune(plan)}
+        >
+          Fine‑Tune
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/*────────────────────── src/components/TripPlan.tsx ──────*/
+import React from "react";
+import { TripPlan } from "../types";
+
+export default function TripPlanView({ plan }: { plan: TripPlan }) {
+  return (
+    <div className="w-full max-w-md bg-white rounded-2xl shadow p-4">
+      <h1 className="text-xl font-bold mb-4">Your Trip Plan</h1>
+      <ul className="space-y-1 text-sm text-gray-700 mb-4">
+        {plan.legs.map((l) => (
+          <li key={l.time}>
+            <span className="font-medium">{l.time}</span> – {l.label} {l.notes && `(${l.notes})`}
+          </li>
+        ))}
+      </ul>
+      <h2 className="font-semibold mb-2">Packing List</h2>
+      <ul className="list-disc list-inside text-sm text-gray-700">
+        {plan.packing.map((p) => (
+          <li key={p}>{p}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/*────────────────────── src/index.css (tailwind base) ───*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*────────────────────── public/manifest.json ─────────────*/
+{
+  "name": "Family Day‑Trip Planner",
+  "short_name": "DayTrip",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "icons": []
+}
+
+/*────────────────────── server/tsconfig.json ─────────────*/
+{
+  "compilerOptions": {
+    "outDir": "dist/server",
+    "module": "commonjs",
+    "target": "ES2020",
+    "esModuleInterop": true,
+    "strict": true
+  },
+  "include": ["index.ts"]
+}
+
+/*────────────────────── server/index.ts ──────────────────*/
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+const app = express();
+app.use(express.json());
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+app.use(express.static(path.join(__dirname, "../client")));
+
+// Mock data
+const adventures = [
+  {
+    id: "animals",
+    title: "Animal Encounters + Picnic",
+    subtitle: "Woodland Park Zoo + Green Lake",
+    image: "/images/zoo.jpg"
+  },
+  {
+    id: "forest",
+    title: "Forest Hike + Donuts",
+    subtitle: "Twin Falls Trail + Bakery",
+    image: "/images/forest-hike.jpg"
+  },
+  {
+    id: "beach",
+    title: "Beach Play + Ice Cream",
+    subtitle: "Alki Beach + Molly Moon’s",
+    image: "/images/beach.jpg"
+  }
+];
+
+app.get("/api/adventures", (_, res) => res.json(adventures));
+
+app.post("/api/recommendation", (req, res) => {
+  const themeId = req.body.themeId;
+  const plan = makePlan(themeId);
+  res.json(plan);
+});
+
+app.post("/api/refresh", (req, res) => {
+  const themeId = req.body.themeId;
+  // rotate to next suggestion (simplified)
+  const next = adventures[(adventures.findIndex((a) => a.id === themeId) + 1) % adventures.length];
+  res.json(next);
+});
+
+function makePlan(theme: string) {
+  switch (theme) {
+    case "animals":
+      return {
+        theme,
+        legs: [
+          { time: "10:00", label: "Leave home" },
+          { time: "11:00", label: "Woodland Park Zoo" },
+          { time: "13:30", label: "Picnic at Green Lake" },
+          { time: "15:00", label: "Ice cream stop" },
+          { time: "15:30", label: "Drive home" }
+        ],
+        packing: ["Snacks", "Stroller", "Sunscreen", "Blanket"]
+      };
+    case "forest":
+      return {
+        theme,
+        legs: [
+          { time: "09:00", label: "Leave home" },
+          { time: "10:00", label: "Twin Falls Trail hike" },
+          { time: "12:30", label: "Donut stop in North Bend" },
+          { time: "13:30", label: "Return drive" }
+        ],
+        packing: ["Water", "Rain jackets", "Baby carrier"]
+      };
+    default:
+      return {
+        theme,
+        legs: [
+          { time: "11:00", label: "Leave home" },
+          { time: "12:00", label: "Beach play at Alki" },
+          { time: "14:30", label: "Ice cream" },
+          { time: "15:00", label: "Head home" }
+        ],
+        packing: ["Beach toys", "Sunscreen", "Towels"]
+      };
+  }
+}
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+/*────────────────────── Notes ─────────────────────────────*/
+// • Run `npx create-vite@latest` (React‑TS), paste src/* and config.
+// • Add images under public/images.
+// • `npm run start` spins both Vite dev server (5173) and Express API (3000).
+// • Service‑worker + install banner can be added via Vite‑PWA plugin later.

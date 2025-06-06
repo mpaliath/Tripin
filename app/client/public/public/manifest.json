@@ -1,0 +1,9 @@
+{
+  "name": "Family Day‑Trip Planner",
+  "short_name": "DayTrip",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "icons": []
+}

@@ -1,0 +1,4 @@
+// • Run `npx create-vite@latest` (React‑TS), paste src/* and config.
+// • Add images under public/images.
+// • `npm run start` spins both Vite dev server (5173) and Express API (3000).
+// • Service‑worker + install banner can be added via Vite‑PWA plugin later.
