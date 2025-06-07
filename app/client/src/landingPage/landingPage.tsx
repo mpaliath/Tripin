@@ -22,14 +22,14 @@ const LandingPage: React.FC = () => {
               id="landing-title"
               className="text-3xl font-bold text-blue-700 drop-shadow mb-2"
             >
-              Create and Share Beautiful Photo Albums
+              Plan a trip with ONE click!
             </h1>
           </CardHeader>
           <p
             id="landing-subtitle"
             className="text-lg text-gray-800 mt-4 mb-8"
           >
-            Effortlessly create stunning photo albums and share them with your friends and family.
+            Use AI to prepare an outing for your friends and family.
           </p>
           <CardFooter className="flex justify-center">
             <button
