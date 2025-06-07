@@ -5,11 +5,15 @@ import CenteredLayout from "./CenteredLayout";
 
 export default function RecommendedTrip({
   card,
+  startTime,
+  duration,
   onRefresh,
   onChoose,
   onFineTune
 }: {
   card: Adventure;
+  startTime: string;
+  duration: number;
   onRefresh: (c: Adventure) => void;
   onChoose: (trip: TripPlan) => void;
   onFineTune: (trip: TripPlan) => void;
@@ -18,9 +22,9 @@ export default function RecommendedTrip({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setPlan(createTripPlan(card));
+    setPlan(createTripPlan(card, duration, startTime));
     setLoading(false);
-  }, [card]);
+  }, [card, duration, startTime]);
 
   if (loading || !plan) return <p>Loading recommendation…</p>;
 

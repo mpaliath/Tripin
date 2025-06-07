@@ -8,6 +8,8 @@ export default function RecommendRoute() {
   const { adventureId } = useParams();
   const location = useLocation();
   const cardFromState = location.state?.card as Adventure | undefined;
+  const startTime = location.state?.startTime as string | undefined;
+  const duration = location.state?.duration as number | undefined;
   const navigate = useNavigate();
   const [adventure, setAdventure] = useState<Adventure | null>(cardFromState || null);
 
@@ -22,9 +24,19 @@ export default function RecommendRoute() {
   return (
     <RecommendedTrip
       card={adventure}
-      onRefresh={(newCard) => navigate(`/recommend/${newCard.id}`, { state: { card: newCard } })}
-      onChoose={(trip) => navigate(`/plan/${adventure.id}`, { state: { plan: trip } })}
-      onFineTune={(trip) => navigate(`/plan/${adventure.id}/edit`, { state: { plan: trip } })}
+      startTime={startTime ?? "09:00"}
+      duration={duration ?? 8}
+      onRefresh={(newCard) =>
+        navigate(`/recommend/${newCard.id}`, {
+          state: { card: newCard, startTime: startTime ?? "09:00", duration: duration ?? 8 }
+        })
+      }
+      onChoose={(trip) =>
+        navigate(`/plan/${adventure.id}`, { state: { plan: trip } })
+      }
+      onFineTune={(trip) =>
+        navigate(`/plan/${adventure.id}/edit`, { state: { plan: trip } })
+      }
     />
   );
 }
