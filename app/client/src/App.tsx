@@ -15,7 +15,9 @@ function AppRoutes() {
           path="/"
           element={
             <PickAdventure
-              onPick={(card) => navigate(`/recommend`, { state: { card } })}
+              onPick={(card, startTime, duration) =>
+                navigate(`/recommend`, { state: { card, startTime, duration } })
+              }
             />
           }
         />

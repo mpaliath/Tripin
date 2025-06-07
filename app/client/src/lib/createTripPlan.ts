@@ -10,9 +10,10 @@ function minutesToTime(min: number): string {
   return `${h}:${m}`;
 }
 
-export function createTripPlan(adventure: Adventure): TripPlan {
-  const start = 9 * 60;
-  const end = 17 * 60;
+export function createTripPlan(adventure: Adventure, hours: number, startStr = "09:00"): TripPlan {
+  const [sh, sm] = startStr.split(":").map((s) => parseInt(s, 10));
+  const start = (sh || 0) * 60 + (sm || 0);
+  const end = start + hours * 60;
   const available = end - start;
   const total = adventure.outline.reduce((t, o) => t + o.durationMin, 0) || 1;
   const scale = available / total;
