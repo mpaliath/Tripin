@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { AdventureCard } from "../types";
+import { Adventure } from "../types";
 import CenteredLayout from "./CenteredLayout";
 import PickAdventureCards from "./PickAdventureCards";
 import PickAdventureForm, { Address } from "./PickAdventureForm";
@@ -8,10 +8,11 @@ import PickAdventureForm, { Address } from "./PickAdventureForm";
 export default function PickAdventure({
   onPick
 }: {
-  onPick: (card: AdventureCard) => void;
+  onPick: (card: Adventure, startTime: string, duration: number) => void;
 }) {
-  const [cards, setCards] = useState<AdventureCard[]>([]);
+  const [cards, setCards] = useState<Adventure[]>([]);
   const [address, setAddress] = useState<Address>({ lat: null, lng: null, streetAddress: "" });
+  const [startTime, setStartTime] = useState<string>("09:00");
   const [duration, setDuration] = useState<number>(5);
   const [showCards, setShowCards] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -53,6 +54,9 @@ export default function PickAdventure({
     }
     axios.get(url)
       .then((res) => res.data)
+      .then((list: Adventure[]) =>
+        list.map((adv, i) => ({ ...adv, id: adv.id || String(i) }))
+      )
       .then(setCards)
       .finally(() => {
         setShowCards(true);
@@ -65,13 +69,15 @@ export default function PickAdventure({
       <PickAdventureForm
         address={address}
         setAddress={setAddress}
+        startTime={startTime}
+        setStartTime={setStartTime}
         duration={duration}
         setDuration={setDuration}
         loading={loading}
         onProceed={handleProceed}
       />
       {showCards && (
-        <PickAdventureCards cards={cards} onPick={onPick} />
+        <PickAdventureCards cards={cards} onPick={(c) => onPick(c, startTime, duration)} />
       )}
     </CenteredLayout>
   );

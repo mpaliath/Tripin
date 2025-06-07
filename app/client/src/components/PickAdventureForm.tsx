@@ -8,6 +8,8 @@ export type Address = {
 export interface PickAdventureFormProps {
   address: Address;
   setAddress: (a: Address) => void;
+  startTime: string;
+  setStartTime: (v: string) => void;
   duration: number;
   setDuration: (v: number) => void;
   loading: boolean;
@@ -15,7 +17,7 @@ export interface PickAdventureFormProps {
 }
 
 export default function PickAdventureForm(props: PickAdventureFormProps) {
-  const { address, setAddress, duration, setDuration, loading, onProceed } = props;
+  const { address, setAddress, startTime, setStartTime, duration, setDuration, loading, onProceed } = props;
   // Handle address input change and parse lat,lng if present
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -45,6 +47,16 @@ export default function PickAdventureForm(props: PickAdventureFormProps) {
             onChange={handleAddressChange}
             placeholder="lat,lng or address"
             title={address.streetAddress}
+          />
+        </div>
+        <div className="flex flex-col">
+          <label htmlFor="start-time" className="text-xs font-semibold mb-1">Start Time</label>
+          <input
+            id="start-time"
+            type="time"
+            className="border rounded px-2 py-1 w-24"
+            value={startTime}
+            onChange={e => setStartTime(e.target.value)}
           />
         </div>
         <div className="flex flex-col">
