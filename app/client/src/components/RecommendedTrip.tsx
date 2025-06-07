@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { AdventureCard, TripPlan } from "../types";
+import { Adventure, TripPlan } from "../types";
+import { createTripPlan } from "../lib/createTripPlan";
 import CenteredLayout from "./CenteredLayout";
 
 export default function RecommendedTrip({
@@ -9,8 +9,8 @@ export default function RecommendedTrip({
   onChoose,
   onFineTune
 }: {
-  card: AdventureCard;
-  onRefresh: (c: AdventureCard) => void;
+  card: Adventure;
+  onRefresh: (c: Adventure) => void;
   onChoose: (trip: TripPlan) => void;
   onFineTune: (trip: TripPlan) => void;
 }) {
@@ -18,13 +18,8 @@ export default function RecommendedTrip({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    axios.post("/api/recommendation", { themeId: card.id })
-      .then((res) => res.data)
-      .then((p) => {
-        setPlan(p);
-        setLoading(false);
-      });
+    setPlan(createTripPlan(card));
+    setLoading(false);
   }, [card]);
 
   if (loading || !plan) return <p>Loading recommendation…</p>;
@@ -46,11 +41,7 @@ export default function RecommendedTrip({
         <div id="recommended-trip-buttons" className="grid grid-cols-3 gap-2 mt-20">
           <button id="recommended-trip-refresh-btn"
             className="bg-gray-200 rounded-xl py-2 text-sm"
-            onClick={() =>
-              axios.post("/api/refresh", { themeId: card.id })
-                .then((res) => res.data)
-                .then(onRefresh)
-            }
+            onClick={() => onRefresh(card)}
           >
             Refresh
           </button>
