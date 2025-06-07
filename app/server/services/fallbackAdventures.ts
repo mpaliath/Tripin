@@ -1,4 +1,4 @@
-import { tryGetItem } from "./cosmosCache";
+ import { tryGetItem } from "../utils/cosmosCache";
 
 export type FallbackAdventures = any[]; // Replace 'any' with Adventure if possible
 

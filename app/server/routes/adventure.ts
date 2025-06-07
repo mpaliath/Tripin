@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { getFallbackAdventures } from "./fallbackAdventures";
-import { replaceHeroImagesTextWithUrl } from "./imageCache";
-import { getOpenAiAdventures } from "./openAiApi";
-import { getSerpResults } from "./serpApi";
+import { getFallbackAdventures } from "../services/fallbackAdventures";
+import { replaceHeroImagesTextWithUrl } from "../services/imageCache";
+import { getOpenAiAdventures } from "../services/openAiApi";
+import { getSerpResults } from "../services/serpApi";
 
 const router = Router();
 const MAX_RESULTS = 3;

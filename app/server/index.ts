@@ -33,7 +33,7 @@ const adventures = [
 const clientPath = path.join(__dirname, "../client");
 app.use(express.static(clientPath));
 
-const adventureRouter = require("./adventure/adventure").default;
+const adventureRouter = require("./routes/adventure").default;
 app.use(adventureRouter);
 
 //app.get("/api/adventures", (_: any, res: any) => res.json(adventures));

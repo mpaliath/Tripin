@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import OpenAI from "openai";
-import { Adventure } from "./adventureTypes";
-import { storeItem, tryGetItem } from "./cosmosCache";
+import { Adventure } from "../models/adventure";
+import { storeItem, tryGetItem } from "../utils/cosmosCache";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 

@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import { storeItem, tryGetItem } from "./cosmosCache";
-import { fetchImages } from "./google";
+import { storeItem, tryGetItem } from "../utils/cosmosCache";
+import { fetchImages } from "../utils/google";
 
 export type ImageDetails = { link: string };
 

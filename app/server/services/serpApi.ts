@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import fetch from "node-fetch";
-import { storeItem, tryGetItem } from "./cosmosCache";
+import { storeItem, tryGetItem } from "../utils/cosmosCache";
 
 const SERP_KEY = process.env.SERP_KEY;
 
