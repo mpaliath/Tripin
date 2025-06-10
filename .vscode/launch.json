@@ -6,7 +6,7 @@
       "request": "launch",
       "name": "Start Express Server (dist)",
       "cwd": "${workspaceFolder}/app",
-      "program": "${workspaceFolder}/app/server/dist/index.js",
+      "program": "${workspaceFolder}/app/server/dist/server/index.js",
       "console": "integratedTerminal",
       "preLaunchTask": "build-server"
     },

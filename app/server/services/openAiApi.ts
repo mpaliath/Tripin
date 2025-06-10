@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import OpenAI from "openai";
-import { Adventure } from "../models/adventure";
+import type { Adventure } from "../../shared/types";
 import { storeItem, tryGetItem } from "../utils/cosmosCache";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -75,7 +75,7 @@ Rules:
 
   // Call OpenAI via helper
   const parsedContent = await getOpenAiResponse({
-    model: "gpt-4o-mini",
+    model: "gpt-4.1",
     messages: [
       { "role": "system", "content": [{ "type": "text", "text": sysPrompt }] },
       { "role": "user", "content": [{ "type": "text", "text": JSON.stringify({ SNIPPETS: snippets }) }] }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import type { Adventure } from "../../../shared/types";
 import RecommendedTrip from "../components/RecommendedTrip";
-import { Adventure } from "../types";
 import Redirect from "./Redirect";
 
 export default function RecommendRoute() {

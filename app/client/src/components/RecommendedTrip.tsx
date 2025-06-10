@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Adventure, TripPlan } from "../types";
+import type { Adventure } from "../../../shared/types";
 import { createTripPlan } from "../lib/createTripPlan";
+import { TripPlan } from "../types";
 import CenteredLayout from "./CenteredLayout";
 
 export default function RecommendedTrip({
