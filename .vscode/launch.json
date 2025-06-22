@@ -8,8 +8,7 @@
       "cwd": "${workspaceFolder}/app/server",
       "program": "${workspaceFolder}/app/server/dist/server/index.js",
       "console": "integratedTerminal",
-      "preLaunchTask": "build-server",
-      "envFile": "${workspaceFolder}/app/server/.env"
+      "preLaunchTask": "build-server"
     },
     {
       "type": "node",

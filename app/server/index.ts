@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Load environment variables from the server directory
-require('dotenv').config({ path: path.join(__dirname, '.env') });   
+// When compiled, __dirname will be dist/server, so we need to go back to server source
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });   
 
 const express = require("express");
 const app = express();

@@ -1,21 +1,21 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Adventure } from "../types";
+import type { Adventure } from "../../../shared/types";
 import CenteredLayout from "./CenteredLayout";
 import PickAdventureCards from "./PickAdventureCards";
 import PickAdventureForm, { Address } from "./PickAdventureForm";
+import { useAdventureStream } from "../hooks/useAdventureStream";
 
 export default function PickAdventure({
   onPick
 }: {
   onPick: (card: Adventure, startTime: string, duration: number) => void;
 }) {
-  const [cards, setCards] = useState<Adventure[]>([]);
   const [address, setAddress] = useState<Address>({ lat: null, lng: null, streetAddress: "" });
   const [startTime, setStartTime] = useState<string>("09:00");
   const [duration, setDuration] = useState<number>(5);
-  const [showCards, setShowCards] = useState(false);
-  const [loading, setLoading] = useState(false);
+  
+  const { loading, progress, adventures, error, fetchAdventures } = useAdventureStream();
 
   // Get current location on mount and reverse geocode to address
   useEffect(() => {
@@ -44,24 +44,12 @@ export default function PickAdventure({
 
   // Fetch adventures only when user clicks proceed
   const handleProceed = () => {
-    setLoading(true);
-    let url = '';
-    const cityParam = address.city ? `&city=${encodeURIComponent(address.city)}` : '';
-    if (address.lat !== null && address.lng !== null) {
-      url = `/api/adventures?lat=${address.lat}&lng=${address.lng}&hours=${duration}${cityParam}`;
-    } else {
-      url = `/api/adventures?lat=&lng=&hours=${duration}${cityParam}`;
-    }
-    axios.get(url)
-      .then((res) => res.data)
-      .then((list: Adventure[]) =>
-        list.map((adv, i) => ({ ...adv, id: adv.id || String(i) }))
-      )
-      .then(setCards)
-      .finally(() => {
-        setShowCards(true);
-        setLoading(false);
-      });
+    fetchAdventures({
+      lat: address.lat,
+      lng: address.lng,
+      hours: duration,
+      city: address.city
+    });
   };
 
   return (
@@ -74,11 +62,20 @@ export default function PickAdventure({
         duration={duration}
         setDuration={setDuration}
         loading={loading}
+        processingStage={progress?.stage}
+        progress={progress?.progress}
         onProceed={handleProceed}
       />
-      {showCards && (
-        <PickAdventureCards cards={cards} onPick={(c) => onPick(c, startTime, duration)} />
+      {error && (
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <span className="text-sm text-red-700">Error: {error}</span>
+        </div>
       )}
+      <PickAdventureCards 
+        cards={adventures || []} 
+        onPick={(c) => onPick(c, startTime, duration)}
+        loading={loading}
+      />
     </CenteredLayout>
   );
 }
