@@ -18,8 +18,18 @@ export async function getSerpResults({ cityQ }: { cityQ: string }) {
   if (cached) {
     serp = cached;
   } else {
-    serp = await fetch(serpURL).then(r => r.json());
-    await storeItem(serpId, "serp", serp);
+    try {
+      const response = await fetch(serpURL);
+      if (!response.ok) {
+        throw new Error(`SerpAPI returned ${response.status}: ${response.statusText}`);
+      }
+      serp = await response.json();
+      await storeItem(serpId, "serp", serp);
+    } catch (error) {
+      console.error('SerpAPI request failed:', error);
+      // Return empty results if API call fails
+      serp = { organic_results: [] };
+    }
   }
   return { serp, serpId };
 }

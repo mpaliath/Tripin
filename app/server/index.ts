@@ -1,11 +1,15 @@
-const fs   = require('fs');
+const fs = require('fs');
 const path = require('path');
-const envPath = path.join(__dirname, '.env');   // will exist only in local builds
 
+// Load environment variables
 require('dotenv').config();   
 
 const express = require("express");
 const app = express();
+
+// Trust proxy for Azure App Service
+app.set('trust proxy', 1);
+
 app.use(express.json());
 
 // Mock data
@@ -30,7 +34,10 @@ const adventures = [
   }
 ];
 
+// Serve static files from the built client
+// The client files are copied to dist/client during build
 const clientPath = path.join(__dirname, "../client");
+
 app.use(express.static(clientPath));
 
 const adventureRouter = require("./routes/adventure").default;
@@ -38,6 +45,11 @@ app.use(adventureRouter);
 
 const recommendationRouter = require("./routes/recommendation").default;
 app.use(recommendationRouter);
+
+// SPA fallback - serve index.html for any non-API routes
+app.get('*', (req: any, res: any) => {
+  res.sendFile(path.join(clientPath, 'index.html'));
+});
 
 //app.get("/api/adventures", (_: any, res: any) => res.json(adventures));
 

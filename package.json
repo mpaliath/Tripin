@@ -1,8 +1,29 @@
 {
+  "name": "tripin-app",
+  "private": true,
+  "scripts": {
+    "install:client": "cd app/client && npm ci",
+    "install:server": "cd app/server && npm ci",
+    "install:all": "npm run install:client && npm run install:server",
+    "build:client": "cd app/client && npm run build",
+    "build:server": "cd app/server && npm run build",
+    "build": "npm run build:client && npm run build:server && npm run copy-client",
+    "copy-client": "rm -rf app/server/dist/client && cp -r app/client/dist/client app/server/dist/client",
+    "start": "cd app/server && npm start",
+    "postinstall": "npm run install:all",
+    "dev:client": "cd app/client && npm run dev",
+    "dev:server": "cd app/server && npm run build && npm run start",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\""
+  },
   "dependencies": {
     "axios": "^1.9.0"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.4"
+    "@types/axios": "^0.14.4",
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=20.0.0 <21.0.0",
+    "npm": ">=10.0.0"
   }
 }

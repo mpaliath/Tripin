@@ -1,0 +1,22 @@
+{
+  "deployment": {
+    "command": "npm install && npm run build"
+  },
+  "buildSettings": {
+    "nodeVersion": "20.x"
+  },
+  "appSettings": [
+    {
+      "name": "NODE_ENV",
+      "value": "production"
+    },
+    {
+      "name": "WEBSITES_NODE_DEFAULT_VERSION",
+      "value": "20.x"
+    },
+    {
+      "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
+      "value": "true"
+    }
+  ]
+}
