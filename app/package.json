@@ -1,0 +1,37 @@
+{
+  "name": "tripin-app",
+  "private": true,
+  "scripts": {
+    "clean": "npm run clean:all && echo '🧹 App clean completed!'",
+    "clean:all": "npm run clean:builds && npm run clean:deps && npm run clean:artifacts",
+    "clean:nuke": "npm run clean:builds && npm run clean:deps:nuke && npm run clean:artifacts && echo '💥 Nuclear clean completed!'",
+    "clean:builds": "rm -rf client/dist server/dist",
+    "clean:deps": "rm -rf client/node_modules server/node_modules",
+    "clean:deps:nuke": "rm -rf client/node_modules server/node_modules client/package-lock.json server/package-lock.json",
+    "clean:artifacts": "rm -rf deploy.zip server/deploy.zip deploy/ server/deploy/ deployments/ server/deployments/ LogFiles/ server/LogFiles/",
+    "install": "npm run install:client && npm run install:server",
+    "install:client": "cd client && npm install",
+    "install:server": "cd server && npm install",
+    "ci": "npm run ci:client && npm run ci:server",
+    "ci:client": "cd client && npm ci",
+    "ci:server": "cd server && npm ci",
+    "build": "npm run build:client && npm run build:server && npm run copy-client",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "copy-client": "rm -rf server/dist/client && cp -r client/dist/client server/dist/client",
+    "start": "cd server && npm start",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run build && npm run start",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "test": "npm run test:client && npm run test:server",
+    "test:client": "cd client && npm test",
+    "test:server": "cd server && npm test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=20.0.0 <21.0.0",
+    "npm": ">=10.0.0"
+  }
+}
