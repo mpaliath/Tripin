@@ -39,7 +39,7 @@ cd ..
 echo "📦 Creating deployment package..."
 cd app/server
 rm -f deploy.zip
-zip -r deploy.zip dist/ node_modules/ package.json
+zip -r deploy.zip dist/ package.json package-lock.json
 
 # Deploy to Azure
 echo "🚀 Deploying to Azure App Service..."
