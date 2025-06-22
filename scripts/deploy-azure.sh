@@ -26,24 +26,14 @@ fi
 
 echo "✅ Azure CLI is ready"
 
-# Build the client
-echo "📦 Building client..."
-cd app/client
-npm install
-npm run build
-cd ../..
+# Navigate to project root
+cd "$(dirname "$0")/.."
 
-# Build the server
-echo "🔧 Building server..."
-cd app/server
-npm install
+# Build the application using app scripts
+echo "� Building application..."
+cd app
 npm run build
-cd ../..
-
-# Copy client build to server's public directory
-echo "📁 Copying client build to server..."
-mkdir -p app/server/dist/public
-cp -r app/client/dist/* app/server/dist/public/
+cd ..
 
 # Create deployment package
 echo "📦 Creating deployment package..."
