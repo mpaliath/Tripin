@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// Load environment variables
-require('dotenv').config();   
+// Load environment variables from the server directory
+require('dotenv').config({ path: path.join(__dirname, '.env') });   
 
 const express = require("express");
 const app = express();
@@ -40,10 +40,11 @@ const clientPath = path.join(__dirname, "../client");
 
 app.use(express.static(clientPath));
 
-const adventureRouter = require("./routes/adventure").default;
-app.use(adventureRouter);
+// Import routes
+import adventureRouter from "./routes/adventure";
+import recommendationRouter from "./routes/recommendation";
 
-const recommendationRouter = require("./routes/recommendation").default;
+app.use(adventureRouter);
 app.use(recommendationRouter);
 
 // SPA fallback - serve index.html for any non-API routes
