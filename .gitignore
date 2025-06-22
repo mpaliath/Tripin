@@ -9,3 +9,17 @@ app/**/dist/
 # Environment files
 .env
 app/.env
+
+# Deployment artifacts
+deploy.zip
+**/deploy.zip
+deploy/
+**/deploy/
+deployments/
+**/deployments/
+LogFiles/
+**/LogFiles/
+deploy.sh
+**/deploy.sh
+
+**.DS_Store
