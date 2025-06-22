@@ -25,7 +25,8 @@
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "test": "npm run test:client && npm run test:server",
     "test:client": "cd client && npm test",
-    "test:server": "cd server && npm test"
+    "test:server": "cd server && npm test",
+    "deploy": "./scripts/deploy-azure.sh"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
