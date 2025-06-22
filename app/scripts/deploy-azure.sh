@@ -41,14 +41,15 @@ zip -r deploy.zip dist/ package.json package-lock.json
 
 # Deploy to Azure
 echo "🚀 Deploying to Azure App Service..."
-az webapp deployment source config-zip \
+az webapp deploy \
     --resource-group "$RESOURCE_GROUP" \
     --name "$APP_NAME" \
-    --src deploy.zip
+    --src-path deploy.zip \
+    --type zip
 
 # Clean up
 rm deploy.zip
 cd ..
 
 echo "✅ Deployment completed successfully!"
-echo "🌐 Your app should be available at: https://$APP_NAME.azurewebsites.net"
+echo "🌐 Your app should be available at: https://tripin-h4cderdrdsatgke4.centralus-01.azurewebsites.net"
