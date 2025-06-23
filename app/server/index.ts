@@ -6,11 +6,20 @@ require('dotenv').config();
 
 const express = require("express");
 const app = express();
+const session = require('express-session');
+const passport = require('passport');
 
 // Trust proxy for Azure App Service
 app.set('trust proxy', 1);
 
 app.use(express.json());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'change-me',
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Mock data
 const adventures = [
@@ -45,6 +54,9 @@ app.use(adventureRouter);
 
 const recommendationRouter = require("./routes/recommendation").default;
 app.use(recommendationRouter);
+
+const authRouter = require("./routes/auth").default;
+app.use(authRouter);
 
 // SPA fallback - serve index.html for any non-API routes
 app.get('*', (req: any, res: any) => {

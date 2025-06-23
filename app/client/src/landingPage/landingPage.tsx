@@ -1,10 +1,18 @@
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ImageCollage from "./imageCollage";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/auth/user')
+      .then(res => res.json())
+      .then(setUser)
+      .catch(() => setUser(null));
+  }, []);
 
   return (
     <div id="landing-page" className="relative min-h-screen flex items-center justify-center">
@@ -31,11 +39,37 @@ const LandingPage: React.FC = () => {
           >
             Use AI to prepare an outing for your friends and family.
           </p>
-          <CardFooter className="flex justify-center">
+          <CardFooter className="flex flex-col gap-4 justify-center">
+            {user ? (
+              <>
+                <p className="text-sm">Signed in as {user.displayName}</p>
+                <button
+                  className="px-6 py-2 bg-gray-600 text-white rounded-md"
+                  onClick={() => fetch('/auth/logout', { method: 'POST' }).then(() => setUser(null))}
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  className="px-6 py-2 bg-red-600 text-white rounded-md"
+                  onClick={() => (window.location.href = '/auth/google')}
+                >
+                  Sign in with Google
+                </button>
+                <button
+                  className="px-6 py-2 bg-blue-800 text-white rounded-md"
+                  onClick={() => (window.location.href = '/auth/facebook')}
+                >
+                  Sign in with Facebook
+                </button>
+              </div>
+            )}
             <button
               id="get-started-button"
-              className="mt-4 px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition"
-              onClick={() => navigate("/home")}
+              className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition"
+              onClick={() => navigate("/")}
             >
               Get Started
             </button>
