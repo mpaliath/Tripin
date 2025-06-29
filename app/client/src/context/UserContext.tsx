@@ -1,15 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User } from '../../../shared/types';
 
-// This User type should match the one on the server
-interface User {
-  id: string;
-  provider: 'google' | 'facebook';
-  providerId: string;
-  email: string;
-  name: string;
-  status: 'trial' | 'paid';
-}
-
+// This User type now comes from the shared location
 interface UserContextType {
   user: User | null;
   loading: boolean;
@@ -39,8 +31,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const logout = async () => {
-    await fetch('/auth/logout', { method: 'POST' });
-    setUser(null);
+    try {
+      await fetch('/auth/logout', { method: 'POST' });
+    } finally {
+      setUser(null);
+    }
   };
 
   return <UserContext.Provider value={{ user, loading, logout }}>{children}</UserContext.Provider>;

@@ -2,19 +2,10 @@ import { Router } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Profile, Strategy as FacebookStrategy } from 'passport-facebook';
+import { User } from '../../../shared/types';
 import { usersContainer } from '../lib/cosmos';
 
 const router = Router();
-
-// Define the User structure for our application and database
-interface User {
-  id: string; // Will be `provider:providerId`, e.g., "google:12345"
-  provider: 'google' | 'facebook';
-  providerId: string;
-  email: string;
-  name: string;
-  status: 'trial' | 'paid'; // Default to 'trial'
-}
 
 // Configure passport Google strategy
 passport.use(new GoogleStrategy({
@@ -23,6 +14,7 @@ passport.use(new GoogleStrategy({
   callbackURL: '/auth/google/callback'
 }, async (_accessToken, _refreshToken, profile, done) => {
   const email = profile.emails?.[0]?.value;
+  const photoUrl = profile.photos?.[0]?.value;
   if (!email) {
     return done(new Error("No email found in Google profile"), undefined);
   }
@@ -42,6 +34,7 @@ passport.use(new GoogleStrategy({
         providerId: profile.id,
         name: profile.displayName,
         email: email,
+        photoUrl: photoUrl,
         status: 'trial' // Default status
       };
       try {
@@ -61,9 +54,10 @@ passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID!,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
   callbackURL: '/auth/facebook/callback',
-  profileFields: ['id', 'displayName', 'emails']
+  profileFields: ['id', 'displayName', 'emails', 'photos']
 }, async (_accessToken, _refreshToken, profile, done) => {
   const email = profile.emails?.[0]?.value;
+  const photoUrl = profile.photos?.[0]?.value;
   if (!email) {
     return done(new Error("No email found in Facebook profile"), undefined);
   }
@@ -83,6 +77,7 @@ passport.use(new FacebookStrategy({
         providerId: profile.id,
         name: profile.displayName,
         email: email,
+        photoUrl: photoUrl,
         status: 'trial' // Default status
       };
       try {
@@ -115,7 +110,7 @@ passport.deserializeUser(async (id: string, done) => {
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/auth/google/callback', passport.authenticate('google', {
-  failureRedirect: '/'
+  failureRedirect: '/landing?auth_error=true'
 }), (_req, res) => {
   res.redirect('/');
 });
@@ -123,7 +118,7 @@ router.get('/auth/google/callback', passport.authenticate('google', {
 router.get('/auth/facebook', passport.authenticate('facebook', { scope: ['email'] }));
 
 router.get('/auth/facebook/callback', passport.authenticate('facebook', {
-  failureRedirect: '/'
+  failureRedirect: '/landing?auth_error=true'
 }), (_req, res) => {
   res.redirect('/');
 });
@@ -138,8 +133,12 @@ router.get('/auth/user', (req, res) => {
 
 router.post('/auth/logout', (req, res, next) => {
   req.logout(err => {
-    if (err) return next(err);
-    res.json({ ok: true });
+    if (err) { return next(err); }
+    req.session.destroy((destroyErr) => {
+      if (destroyErr) { return next(destroyErr); }
+      res.clearCookie('connect.sid'); // Default session cookie name
+      res.status(200).json({ message: 'Logout successful' });
+    });
   });
 });
 

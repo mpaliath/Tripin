@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 function UserAvatar() {
   const { user, loading } = useUser();
@@ -18,7 +18,7 @@ function UserAvatar() {
 
   return (
     <Avatar className="h-8 w-8">
-      {/* The user object doesn't have an image URL yet, so we use a fallback */}
+      <AvatarImage src={user.photoUrl} alt={user.name} />
       <AvatarFallback title={user.name}>{initials}</AvatarFallback>
     </Avatar>
   );
