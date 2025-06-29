@@ -1,18 +1,12 @@
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import ImageCollage from "./imageCollage";
+import { useUser } from "../context/UserContext";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    fetch('/auth/user')
-      .then(res => res.json())
-      .then(setUser)
-      .catch(() => setUser(null));
-  }, []);
+  const { user, logout } = useUser();
 
   return (
     <div id="landing-page" className="relative min-h-screen flex items-center justify-center">
@@ -42,10 +36,10 @@ const LandingPage: React.FC = () => {
           <CardFooter className="flex flex-col gap-4 justify-center">
             {user ? (
               <>
-                <p className="text-sm">Signed in as {user.displayName}</p>
+                <p className="text-sm">Signed in as {user.name}</p>
                 <button
                   className="px-6 py-2 bg-gray-600 text-white rounded-md"
-                  onClick={() => fetch('/auth/logout', { method: 'POST' }).then(() => setUser(null))}
+                  onClick={logout}
                 >
                   Sign out
                 </button>

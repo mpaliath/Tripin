@@ -1,12 +1,38 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+
+function UserAvatar() {
+  const { user, loading } = useUser();
+
+  if (loading || !user) {
+    return null;
+  }
+
+  const initials = user.name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase();
+
+  return (
+    <Avatar className="h-8 w-8">
+      {/* The user object doesn't have an image URL yet, so we use a fallback */}
+      <AvatarFallback title={user.name}>{initials}</AvatarFallback>
+    </Avatar>
+  );
+}
 
 export default function CenteredLayout({ title, children }: { title: string; children: React.ReactNode }) {
   const navigate = useNavigate();
   return (
     <div id="centered-layout-root" className="relative min-h-screen w-full flex flex-col">
-      <div id="centered-layout-title-wrapper" className="w-full absolute top-0 left-0 flex justify-center pointer-events-none">
-          <h1 id="centered-layout-title" className="text-2xl font-bold mt-4 text-center w-full pointer-events-auto">{title}</h1>
+      <div id="centered-layout-header" className="w-full absolute top-0 left-0 flex justify-center items-center p-4 pointer-events-none">
+        <h1 id="centered-layout-title" className="text-2xl font-bold text-center pointer-events-auto">{title}</h1>
+        <div className="absolute top-4 right-4 pointer-events-auto">
+          <UserAvatar />
+        </div>
       </div>
       <div id="centered-layout-content-outer" className="flex-1 flex flex-col items-center w-full pt-20 overflow-auto">
         <div id="centered-layout-content-inner" className="flex flex-col items-center w-full">
