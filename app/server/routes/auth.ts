@@ -125,7 +125,7 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', {
 });
 
 router.get('/auth/user', (req, res) => {
-  if (req.isAuthenticated && req.isAuthenticated()) {
+  if (req.isAuthenticated()) {
     res.json(req.user);
   } else {
     res.json(null);

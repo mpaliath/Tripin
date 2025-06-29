@@ -35,8 +35,9 @@ app.use(authRouter);
 
 // SPA fallback - serve index.html for any non-API routes
 app.get('*', (req: Request, res: Response) => {
-  // Ensure API calls don't get redirected to the index.html
-  if (req.originalUrl.startsWith('/api/')) {
+  // Ensure API calls (like /api/* or /auth/*) don't get redirected to the index.html
+  const isApiRoute = req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/auth/');
+  if (isApiRoute) {
     return res.status(404).send('Not found');
   }
   res.sendFile(path.join(clientPath, 'index.html'));
