@@ -3,14 +3,15 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Profile, Strategy as FacebookStrategy } from 'passport-facebook';
 import { User } from '../../shared/types';
+import config from '../config';
 import { usersContainer } from '../lib/cosmos';
 
 const router = Router();
 
 // Configure passport Google strategy
 passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID!,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+  clientID: config.google.clientId,
+  clientSecret: config.google.clientSecret,
   callbackURL: '/auth/google/callback'
 }, async (_accessToken, _refreshToken, profile, done) => {
   const email = profile.emails?.[0]?.value;
@@ -51,8 +52,8 @@ passport.use(new GoogleStrategy({
 
 // Configure passport Facebook strategy
 passport.use(new FacebookStrategy({
-  clientID: process.env.FACEBOOK_CLIENT_ID!,
-  clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+  clientID: config.facebook.clientId,
+  clientSecret: config.facebook.clientSecret,
   callbackURL: '/auth/facebook/callback',
   profileFields: ['id', 'displayName', 'emails', 'photos']
 }, async (_accessToken, _refreshToken, profile, done) => {

@@ -1,69 +1,45 @@
-const fs = require('fs');
-const path = require('path');
+// This MUST be the first import to ensure environment variables are loaded and validated.
+import config from './config';
+import express, { Request, Response } from 'express';
+import session from 'express-session';
+import passport from 'passport';
+import path from 'path';
 
-// Load environment variables
-require('dotenv').config();   
-
-const express = require("express");
-const app = express();
-const session = require('express-session');
-const passport = require('passport');
+// Import your route handlers
+import adventureRouter from './routes/adventure';
+import recommendationRouter from './routes/recommendation';
+import authRouter from './routes/auth';
 
 // Trust proxy for Azure App Service
+const app = express();
 app.set('trust proxy', 1);
 
 app.use(express.json());
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'change-me',
+  secret: config.sessionSecret,
   resave: false,
   saveUninitialized: false
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Mock data
-const adventures = [
-  {
-    id: "animals",
-    title: "Animal Encounters + Picnic",
-    subtitle: "Woodland Park Zoo + Green Lake",
-    image: "/images/zoo.jpg"
-  },
-  {
-    id: "forest",
-    title: "Forest Hike + Donuts",
-    subtitle: "Twin Falls Trail + Bakery",
-    image: "/images/forest-hike.jpg"
-  },
-  {
-    id: "beach",
-    title: "Beach Play + Ice Cream",
-    subtitle: "Alki Beach + Molly Moon’s",
-    image: "/images/beach.jpg"
-  }
-];
-
 // Serve static files from the built client
 // The client files are copied to dist/client during build
 const clientPath = path.join(__dirname, "../client");
-
 app.use(express.static(clientPath));
 
-const adventureRouter = require("./routes/adventure").default;
+// Register API routes
 app.use(adventureRouter);
-
-const recommendationRouter = require("./routes/recommendation").default;
 app.use(recommendationRouter);
-
-const authRouter = require("./routes/auth").default;
 app.use(authRouter);
 
 // SPA fallback - serve index.html for any non-API routes
-app.get('*', (req: any, res: any) => {
+app.get('*', (req: Request, res: Response) => {
+  // Ensure API calls don't get redirected to the index.html
+  if (req.originalUrl.startsWith('/api/')) {
+    return res.status(404).send('Not found');
+  }
   res.sendFile(path.join(clientPath, 'index.html'));
 });
 
-//app.get("/api/adventures", (_: any, res: any) => res.json(adventures));
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(config.port, () => console.log(`Server running on http://localhost:${config.port}`));
