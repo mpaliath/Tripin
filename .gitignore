@@ -9,6 +9,8 @@ app/**/dist/
 # Environment files
 .env
 app/.env
+# Symlinks to environment files
+**/.env
 
 # Deployment artifacts
 deploy.zip
