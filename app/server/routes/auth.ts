@@ -2,7 +2,7 @@ import { Router } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Profile, Strategy as FacebookStrategy } from 'passport-facebook';
-import { User } from '../../../shared/types';
+import { User } from '../../shared/types';
 import { usersContainer } from '../lib/cosmos';
 
 const router = Router();
@@ -132,9 +132,9 @@ router.get('/auth/user', (req, res) => {
 });
 
 router.post('/auth/logout', (req, res, next) => {
-  req.logout(err => {
+  req.logout((err: Error) => {
     if (err) { return next(err); }
-    req.session.destroy((destroyErr) => {
+    req.session.destroy((destroyErr: Error) => {
       if (destroyErr) { return next(destroyErr); }
       res.clearCookie('connect.sid'); // Default session cookie name
       res.status(200).json({ message: 'Logout successful' });
