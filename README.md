@@ -40,3 +40,19 @@ The server expects the following variables to be set via a `.env` file or the en
 During development you can run the client and server separately using their respective `dev` or `start` scripts.
 
 This project requires **Node.js 20** or later.
+
+## Deployment
+Two helper scripts automate deployment to Azure:
+
+```bash
+./scripts/deploy-client.sh # Deploys the client to Azure Static Web Apps
+./scripts/deploy-server.sh # Deploys the server to Azure App Service
+```
+
+The scripts expect the following environment variables:
+
+- `AZURE_RESOURCE_GROUP` – resource group containing your Azure resources
+- `AZURE_STATIC_WEB_APP_NAME` – name of the Static Web App for the client
+- `AZURE_APP_SERVICE_NAME` – name of the App Service for the server
+
+Ensure the Azure CLI is installed and you are logged in before running them.
