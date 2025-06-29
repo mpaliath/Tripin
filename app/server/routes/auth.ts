@@ -1,17 +1,59 @@
 import { Router } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { Strategy as FacebookStrategy } from 'passport-facebook';
+import { Profile, Strategy as FacebookStrategy } from 'passport-facebook';
+import { usersContainer } from '../lib/cosmos';
 
 const router = Router();
+
+// Define the User structure for our application and database
+interface User {
+  id: string; // Will be `provider:providerId`, e.g., "google:12345"
+  provider: 'google' | 'facebook';
+  providerId: string;
+  email: string;
+  name: string;
+  status: 'trial' | 'paid'; // Default to 'trial'
+}
 
 // Configure passport Google strategy
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID!,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
   callbackURL: '/auth/google/callback'
-}, (_accessToken, _refreshToken, profile, done) => {
-  done(null, profile);
+}, async (_accessToken, _refreshToken, profile, done) => {
+  const email = profile.emails?.[0]?.value;
+  if (!email) {
+    return done(new Error("No email found in Google profile"), undefined);
+  }
+
+  const documentId = `google:${profile.id}`;
+
+  try {
+    // Check if user exists
+    const { resource: existingUser } = await usersContainer.item(documentId, documentId).read<User>();
+    return done(null, existingUser);
+  } catch (error: any) {
+    if (error.code === 404) {
+      // User not found, create a new one
+      const newUser: User = {
+        id: documentId,
+        provider: 'google',
+        providerId: profile.id,
+        name: profile.displayName,
+        email: email,
+        status: 'trial' // Default status
+      };
+      try {
+        const { resource: createdUser } = await usersContainer.items.create(newUser);
+        return done(null, createdUser);
+      } catch (creationError) {
+        return done(creationError, undefined);
+      }
+    }
+    // Other database error
+    return done(error, undefined);
+  }
 }));
 
 // Configure passport Facebook strategy
@@ -20,16 +62,54 @@ passport.use(new FacebookStrategy({
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
   callbackURL: '/auth/facebook/callback',
   profileFields: ['id', 'displayName', 'emails']
-}, (_accessToken, _refreshToken, profile, done) => {
-  done(null, profile);
+}, async (_accessToken, _refreshToken, profile, done) => {
+  const email = profile.emails?.[0]?.value;
+  if (!email) {
+    return done(new Error("No email found in Facebook profile"), undefined);
+  }
+
+  const documentId = `facebook:${profile.id}`;
+
+  try {
+    // Check if user exists
+    const { resource: existingUser } = await usersContainer.item(documentId, documentId).read<User>();
+    return done(null, existingUser);
+  } catch (error: any) {
+    if (error.code === 404) {
+      // User not found, create a new one
+      const newUser: User = {
+        id: documentId,
+        provider: 'facebook',
+        providerId: profile.id,
+        name: profile.displayName,
+        email: email,
+        status: 'trial' // Default status
+      };
+      try {
+        const { resource: createdUser } = await usersContainer.items.create(newUser);
+        return done(null, createdUser);
+      } catch (creationError) {
+        return done(creationError, undefined);
+      }
+    }
+    // Other database error
+    return done(error, undefined);
+  }
 }));
 
-passport.serializeUser((user, done) => {
-  done(null, user as any);
+// Store only the user's unique ID in the session for efficiency and security.
+passport.serializeUser((user: any, done) => {
+  done(null, user.id);
 });
 
-passport.deserializeUser((obj: any, done) => {
-  done(null, obj);
+// Retrieve the full user object from the database using the ID from the session.
+passport.deserializeUser(async (id: string, done) => {
+  try {
+    const { resource: user } = await usersContainer.item(id, id).read<User>();
+    done(null, user);
+  } catch (error) {
+    done(error, null);
+  }
 });
 
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
