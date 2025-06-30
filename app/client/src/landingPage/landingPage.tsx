@@ -46,18 +46,18 @@ const LandingPage: React.FC = () => {
               </>
             ) : (
               <div className="flex flex-col sm:flex-row gap-2">
-                <button
+                <a
                   className="px-6 py-2 bg-red-600 text-white rounded-md"
-                  onClick={() => (window.location.href = '/auth/google')}
+                  href="/auth/google"
                 >
                   Sign in with Google
-                </button>
-                <button
+                </a>
+                <a
                   className="px-6 py-2 bg-blue-800 text-white rounded-md"
-                  onClick={() => (window.location.href = '/auth/facebook')}
+                  href="/auth/facebook"
                 >
                   Sign in with Facebook
-                </button>
+                </a>
               </div>
             )}
             <button
