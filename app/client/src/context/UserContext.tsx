@@ -10,6 +10,16 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+const defaultUser: User = {
+  id: 'guest',
+  name: 'Guest',
+	photoUrl: '',
+	provider: 'guest',
+	providerId: '',
+	email: '',
+  status: 'guest',
+};
+
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -18,11 +28,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const fetchUser = async () => {
       try {
         const res = await fetch('/auth/user');
-        const userData = await res.json();
-        setUser(res.ok ? userData : null);
+        if (res.ok) {
+          const userData = await res.json();
+          setUser(userData && userData.id ? userData : defaultUser);
+        } else {
+          setUser(defaultUser);
+        }
       } catch (error) {
         console.error("Failed to fetch user", error);
-        setUser(null);
+        setUser(defaultUser);
       } finally {
         setLoading(false);
       }
@@ -34,7 +48,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     try {
       await fetch('/auth/logout', { method: 'POST' });
     } finally {
-      setUser(null);
+      setUser(defaultUser);
     }
   };
 

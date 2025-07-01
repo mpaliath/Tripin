@@ -20,10 +20,10 @@ export interface Adventure {
 
 export interface User {
   id: string; // Will be `provider:providerId`, e.g., "google:12345"
-  provider: 'google' | 'facebook';
+  provider: 'google' | 'facebook' | 'guest';
   providerId: string;
   email: string;
   name: string;
   photoUrl?: string; // Optional field for profile picture
-  status: 'trial' | 'paid'; // Default to 'trial'
+  status: 'guest' |'trial' | 'paid'; // Default to 'trial'
 }
