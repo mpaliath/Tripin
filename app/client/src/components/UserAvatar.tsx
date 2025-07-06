@@ -52,11 +52,23 @@ export default function UserAvatar() {
       <DropdownMenuContent align="end">
         {!user || user.id === "guest" ? (
           <>
-            <DropdownMenuItem asChild>
-              <a href="/auth/google">Sign in with Google</a>
+            <DropdownMenuItem
+              onSelect={() => {
+                window.location.href = `/auth/google?returnTo=${encodeURIComponent(
+                  window.location.href
+                )}`;
+              }}
+            >
+              Sign in with Google
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <a href="/auth/facebook">Sign in with Facebook</a>
+            <DropdownMenuItem
+              onSelect={() => {
+                window.location.href = `/auth/facebook?returnTo=${encodeURIComponent(
+                  window.location.href
+                )}`;
+              }}
+            >
+              Sign in with Facebook
             </DropdownMenuItem>
           </>
         ) : (

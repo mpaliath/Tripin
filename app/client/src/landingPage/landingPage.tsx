@@ -48,13 +48,13 @@ const LandingPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-2">
                 <a
                   className="px-6 py-2 bg-red-600 text-white rounded-md"
-                  href="/auth/google"
+                  href={`/auth/google?returnTo=${encodeURIComponent('/')}`}
                 >
                   Sign in with Google
                 </a>
                 <a
                   className="px-6 py-2 bg-blue-800 text-white rounded-md"
-                  href="/auth/facebook"
+                  href={`/auth/facebook?returnTo=${encodeURIComponent('/')}`}
                 >
                   Sign in with Facebook
                 </a>

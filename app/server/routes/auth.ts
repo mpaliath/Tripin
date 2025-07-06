@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import passport, { Profile } from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
@@ -7,6 +7,14 @@ import config from '../config';
 import { usersContainer } from '../lib/cosmos';
 
 const router = Router();
+
+// Extend Express's session to include our custom property.
+// This avoids using `any` and provides type safety.
+declare module 'express-session' {
+  interface SessionData {
+    returnTo?: string;
+  }
+}
 
 type AuthProvider = 'google' | 'facebook';
 
@@ -81,21 +89,48 @@ passport.deserializeUser(async (id: string, done) => {
   }
 });
 
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+/**
+ * Creates a middleware to initiate an OAuth flow.
+ * It saves the `returnTo` URL in the session before redirecting to the provider.
+ */
+const handleAuthRequest = (provider: AuthProvider, options: passport.AuthenticateOptions) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const returnTo = req.query.returnTo as string | undefined;
+    if (req.session) {
+      req.session.returnTo = returnTo || '/';
+    }
+    passport.authenticate(provider, options)(req, res, next);
+  };
+};
 
-router.get('/auth/google/callback', passport.authenticate('google', {
-  failureRedirect: '/landing?auth_error=true'
-}), (_req, res) => {
-  res.redirect('/');
-});
+/**
+ * Creates a middleware to handle the OAuth callback.
+ * This uses a custom callback with `req.logIn` to securely handle the session
+ * and prevent session fixation attacks, while still allowing a dynamic redirect.
+ */
+const handleAuthCallback = (provider: AuthProvider) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    // Capture the returnTo URL from the session before Passport regenerates it.
+    const returnTo = req.session?.returnTo || '/';
 
-router.get('/auth/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+    passport.authenticate(provider, (err: any, user: any) => {
+      if (err) { return next(err); }
+      if (!user) { return res.redirect('/landing?auth_error=true'); }
 
-router.get('/auth/facebook/callback', passport.authenticate('facebook', {
-  failureRedirect: '/landing?auth_error=true'
-}), (_req, res) => {
-  res.redirect('/');
-});
+      // Manually log in the user. This is where the session is regenerated.
+      req.logIn(user, (loginErr) => {
+        if (loginErr) { return next(loginErr); }
+        // The old session is gone, but we have the `returnTo` URL in our closure.
+        return res.redirect(returnTo);
+      });
+    })(req, res, next);
+  };
+};
+
+router.get('/auth/google', handleAuthRequest('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback', handleAuthCallback('google'));
+router.get('/auth/facebook', handleAuthRequest('facebook', { scope: ['email'] }));
+router.get('/auth/facebook/callback', handleAuthCallback('facebook'));
 
 router.get('/auth/user', (req, res) => {
   if (req.isAuthenticated()) {
@@ -105,11 +140,15 @@ router.get('/auth/user', (req, res) => {
   }
 });
 
-router.post('/auth/logout', (req, res, next) => {
-  req.logout((err: Error) => {
+router.post('/auth/logout', (req: Request, res: Response, next: NextFunction) => {
+  req.logout((err: any) => {
     if (err) { return next(err); }
-    req.session.destroy((destroyErr: Error) => {
+    // Passport's logout function clears the login session.
+    // Explicitly destroying the session is a robust way to ensure a full cleanup.
+    req.session.destroy((destroyErr: any) => {
       if (destroyErr) { return next(destroyErr); }
+      // The session cookie is typically cleared by the session middleware upon destruction,
+      // but this call provides an extra layer of certainty.
       res.clearCookie('connect.sid'); // Default session cookie name
       res.status(200).json({ message: 'Logout successful' });
     });
