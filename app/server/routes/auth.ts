@@ -129,7 +129,7 @@ const handleAuthCallback = (provider: AuthProvider) => {
 
 router.get('/auth/google', handleAuthRequest('google', { scope: ['profile', 'email'] }));
 router.get('/auth/google/callback', handleAuthCallback('google'));
-router.get('/auth/facebook', handleAuthRequest('facebook', { scope: ['email'] }));
+router.get('/auth/facebook', handleAuthRequest('facebook', { scope: ['public_profile', 'email'] }));
 router.get('/auth/facebook/callback', handleAuthCallback('facebook'));
 
 router.get('/auth/user', (req, res) => {
