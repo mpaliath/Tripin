@@ -5,7 +5,7 @@ set -e
 
 # Configuration
 APP_NAME="TripIn"
-RESOURCE_GROUP="trippin_group"
+RESOURCE_GROUP="tripin_group-abf4"
 REGION="Central US"
 
 echo "🚀 Starting deployment to Azure App Service: $APP_NAME"
@@ -37,7 +37,7 @@ npm run build
 echo "📦 Creating deployment package..."
 cd server
 rm -f deploy.zip
-zip -r deploy.zip dist/ package.json package-lock.json
+zip -r deploy.zip dist/ package.json package-lock.json node_modules/
 
 # Deploy to Azure
 echo "🚀 Deploying to Azure App Service..."
