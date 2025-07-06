@@ -22,10 +22,10 @@ The server expects the following variables to be set via a `.env` file or the en
 - `FACEBOOK_CLIENT_SECRET`
 
 ## Setup
+Optional: npm run clean:nuke 
 1. Install dependencies for the server and client:
    ```bash
-   npm install --prefix app/server
-   npm install --prefix app/client
+   npm run install
    ```
 2. Run the provided setup script to generate `.env` from your environment variables:
    ```bash
