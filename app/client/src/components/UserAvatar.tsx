@@ -10,7 +10,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { User } from "lucide-react";
 
 export default function UserAvatar() {
   const { user, loading, logout } = useUser();
@@ -24,7 +23,9 @@ export default function UserAvatar() {
           variant="outline"
           className="p-0 rounded-full hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
         >
-          <Avatar className="h-12 w-12">
+          {/* Adding a key here ensures React replaces the component on login/logout, */}
+          {/* preventing potential rendering glitches within the Avatar component when its children change. */}
+          <Avatar key={user ? user.id : "guest"} className="h-12 w-12">
             {user && user.id !== "guest" ? (
               <>
                 <AvatarImage
@@ -43,7 +44,6 @@ export default function UserAvatar() {
             ) : (
               <AvatarFallback>
                 Sign In
-
               </AvatarFallback>
             )}
           </Avatar>
@@ -76,8 +76,7 @@ export default function UserAvatar() {
             <DropdownMenuLabel>Signed in as {user.name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={(e) => {
-                e.preventDefault();
+              onSelect={() => {
                 logout();
               }}
             >
