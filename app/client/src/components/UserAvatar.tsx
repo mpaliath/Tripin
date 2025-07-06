@@ -21,7 +21,7 @@ export default function UserAvatar() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
+          variant="outline"
           className="p-0 rounded-full hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
         >
           <Avatar className="h-12 w-12">
@@ -42,7 +42,7 @@ export default function UserAvatar() {
               </>
             ) : (
               <AvatarFallback>
-                <User style={{ width: "24px", height: "24px" }} />
+                Sign In
 
               </AvatarFallback>
             )}
