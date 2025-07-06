@@ -1,22 +1,9 @@
-import { Container, CosmosClient } from "@azure/cosmos";
-
-let container: Container | null = null;
-function getContainer(): Container {
-  if (!container) {
-    const endpoint = process.env.COSMOS_ENDPOINT!;
-    const key = process.env.COSMOS_KEY!;
-    const dbName = process.env.COSMOS_DB_NAME!;
-    const containerName = process.env.COSMOS_CONTAINER_NAME!;
-    const client = new CosmosClient({ endpoint, key });
-    container = client.database(dbName).container(containerName);
-  }
-  return container;
-}
+import { cacheContainer } from "../lib/cosmos";
 
 export async function tryGetItem<T>(id: string, type: string): Promise<T | null> {
-  const container = getContainer();
   try {
-    const { resource } = await container.item(id, type).read();
+    // Use the centralized cache container
+    const { resource } = await cacheContainer.item(id, type).read();
     if (resource && resource.data) {
       return typeof resource.data === "string" ? JSON.parse(resource.data) : resource.data;
     }
@@ -32,9 +19,9 @@ export async function tryGetItem<T>(id: string, type: string): Promise<T | null>
 }
 
 export async function storeItem(id: string, type: string, data: any, params?: any) {
-  const container = getContainer();
   try {
-    await container.items.create({
+    // Use the centralized cache container
+    await cacheContainer.items.create({
       id,
       type,
       params,

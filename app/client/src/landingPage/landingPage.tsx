@@ -2,9 +2,11 @@ import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import ImageCollage from "./imageCollage";
+import { useUser } from "../context/UserContext";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user, logout } = useUser();
 
   return (
     <div id="landing-page" className="relative min-h-screen flex items-center justify-center">
@@ -31,11 +33,37 @@ const LandingPage: React.FC = () => {
           >
             Use AI to prepare an outing for your friends and family.
           </p>
-          <CardFooter className="flex justify-center">
+          <CardFooter className="flex flex-col gap-4 justify-center">
+            {user ? (
+              <>
+                <p className="text-sm">Signed in as {user.name}</p>
+                <button
+                  className="px-6 py-2 bg-gray-600 text-white rounded-md"
+                  onClick={logout}
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-2">
+                <a
+                  className="px-6 py-2 bg-red-600 text-white rounded-md"
+                  href={`/auth/google?returnTo=${encodeURIComponent('/')}`}
+                >
+                  Sign in with Google
+                </a>
+                <a
+                  className="px-6 py-2 bg-blue-800 text-white rounded-md"
+                  href={`/auth/facebook?returnTo=${encodeURIComponent('/')}`}
+                >
+                  Sign in with Facebook
+                </a>
+              </div>
+            )}
             <button
               id="get-started-button"
-              className="mt-4 px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition"
-              onClick={() => navigate("/home")}
+              className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold shadow hover:bg-blue-700 transition"
+              onClick={() => navigate("/")}
             >
               Get Started
             </button>

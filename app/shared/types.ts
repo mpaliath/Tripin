@@ -17,3 +17,13 @@ export interface Adventure {
   costUSD: string;
   sources: { title: string; url: string }[];
 }
+
+export interface User {
+  id: string; // Will be `provider:providerId`, e.g., "google:12345"
+  provider: 'google' | 'facebook' | 'guest';
+  providerId: string;
+  email: string;
+  name: string;
+  photoUrl?: string; // Optional field for profile picture
+  status: 'guest' |'trial' | 'paid'; // Default to 'trial'
+}

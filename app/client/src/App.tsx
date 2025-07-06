@@ -5,6 +5,7 @@ import LandingRoute from "./routes/LandingRoute";
 import PlanRoute from "./routes/PlanRoute";
 import RecommendRoute from "./routes/RecommendRoute";
 import Redirect from "./routes/Redirect";
+import { UserProvider } from "./context/UserContext";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -34,7 +35,9 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <UserProvider>
+        <AppRoutes />
+      </UserProvider>
     </BrowserRouter>
   );
 }

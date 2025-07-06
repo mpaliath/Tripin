@@ -25,3 +25,5 @@ deploy.sh
 **/deploy.sh
 
 **.DS_Store
+.github/copilot-instructions.md
+.github/wmt-instructions.md

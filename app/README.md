@@ -15,12 +15,17 @@ The server expects the following variables to be set via a `.env` file or the en
 - `COSMOS_DB_NAME`
 - `COSMOS_CONTAINER_NAME`
 - `PORT` (optional, defaults to 3000)
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `SESSION_SECRET`
+- `FACEBOOK_CLIENT_ID`
+- `FACEBOOK_CLIENT_SECRET`
 
 ## Setup
+Optional: npm run clean:nuke 
 1. Install dependencies for the server and client:
    ```bash
-   npm install --prefix app/server
-   npm install --prefix app/client
+   npm run install
    ```
 2. Run the provided setup script to generate `.env` from your environment variables:
    ```bash

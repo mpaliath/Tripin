@@ -1,18 +1,21 @@
-import react from "@vitejs/plugin-react";
-import path from "path";
-import { defineConfig } from "vite";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from "path"
+
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    port: 5173,
-    proxy: {
-      '/api': 'http://localhost:3000'
-    }
-  },
-  build: { outDir: "dist/client" },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),   //  <-- important line
+      // This alias is used by shadcn/ui and should match your tsconfig.json
+      "@": path.resolve(__dirname, "./src"),
     },
   },
-});
+  server: {
+    proxy: {
+      // Proxy API requests to the backend Express server during development
+      '/auth': 'http://localhost:3000',
+      '/api': 'http://localhost:3000',
+    }
+  }
+})
