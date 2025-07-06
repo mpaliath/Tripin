@@ -35,8 +35,9 @@ export default function PickAdventure({
             })
             .catch(() => setAddress({ lat: latitude, lng: longitude, streetAddress: `${latitude},${longitude}`, city: `${latitude},${longitude}` }));
         },
-        () => {
-          setAddress({ lat: null, lng: null, streetAddress: "", city: "" });
+		  (error) => {
+			console.error("Geolocation error:", error);
+          	setAddress({ lat: null, lng: null, streetAddress: "", city: "" });
         }
       );
     }
