@@ -27,21 +27,10 @@ Optional: npm run clean:nuke
    ```bash
    npm run install
    ```
-2. Run the provided setup script to generate `.env` from your environment variables:
+2. Create a `.env` with above secrets
    ```bash
-   ./setup.sh
-   ```
-3. Build the server and client:
-   ```bash
-   npm run build --prefix app/server
-   npm run build --prefix app/client
-   ```
-4. Start the server:
-   ```bash
-   node app/dist/server/index.js
+   ./scripts/link-env.sh
    ```
 
 ## Development
-During development you can run the client and server separately using their respective `dev` or `start` scripts.
-
-This project requires **Node.js 20** or later.
+Launch server and client from VSCode using command `Dev: Full Stack (Server + Vite + Chrome)`
