@@ -1,0 +1,79 @@
+import React from "react";
+import { useUser } from "../context/UserContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { User } from "lucide-react";
+
+export default function UserAvatar() {
+  const { user, loading, logout } = useUser();
+
+  if (loading) return null;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          className="p-0 rounded-full hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+        >
+          <Avatar className="h-12 w-12">
+            {user && user.id !== "guest" ? (
+              <>
+                <AvatarImage
+                  src={user.photoUrl}
+                  alt={user.name}
+                  className="object-cover"
+                />
+                <AvatarFallback className="text-xl">
+                  {user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()}
+                </AvatarFallback>
+              </>
+            ) : (
+              <AvatarFallback>
+                <User style={{ width: "24px", height: "24px" }} />
+
+              </AvatarFallback>
+            )}
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {!user || user.id === "guest" ? (
+          <>
+            <DropdownMenuItem asChild>
+              <a href="/auth/google">Sign in with Google</a>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <a href="/auth/facebook">Sign in with Facebook</a>
+            </DropdownMenuItem>
+          </>
+        ) : (
+          <>
+            <DropdownMenuLabel>Signed in as {user.name}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={(e) => {
+                e.preventDefault();
+                logout();
+              }}
+            >
+              Sign out
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
